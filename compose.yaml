@@ -4,9 +4,10 @@ services:
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-brainbot}
       MYSQL_USER: ${MYSQL_USER:-brainbot}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
-    volumes: [mysql_data:/var/lib/mysql]
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}"
+    volumes:
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
       interval: 10s
@@ -17,23 +18,37 @@ services:
     build: ./ml
     environment:
       MODEL_DIR: /app/artifacts
-    volumes: [./ml/artifacts:/app/artifacts:ro]
-    expose: ["8000"]
+    volumes:
+      - ./ml/artifacts:/app/artifacts:ro
+    expose:
+      - "8000"
     restart: unless-stopped
   api:
     build: ./backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-brainbot}?serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-brainbot}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
-      BRAINBOT_JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}"
+      BRAINBOT_JWT_SECRET: "${JWT_SECRET:?Set JWT_SECRET in .env}"
       BRAINBOT_JWT_EXPIRATION_SECONDS: ${JWT_EXPIRATION_SECONDS:-3600}
       BRAINBOT_ML_URL: ${ML_SERVICE_URL:-http://ml:8000}
       BRAINBOT_DATA_KEY_BASE64: ${DATA_ENCRYPTION_KEY_B64:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_TIMEOUT_MS: ${SMTP_TIMEOUT_MS:-5000}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_AUTH: ${SMTP_AUTH:-true}
+      SMTP_STARTTLS_ENABLE: ${SMTP_STARTTLS_ENABLE:-true}
+      BRAINBOT_MAIL_FROM: ${BRAINBOT_MAIL_FROM:-no-reply@example.invalid}
+      BRAINBOT_PASSWORD_RESET_BASE_URL: ${BRAINBOT_PASSWORD_RESET_BASE_URL:-}
     depends_on:
-      mysql: {condition: service_healthy}
-      ml: {condition: service_started}
-    ports: ["8080:8080"]
+      mysql:
+        condition: service_healthy
+      ml:
+        condition: service_started
+    ports:
+      - "8080:8080"
     restart: unless-stopped
 volumes:
   mysql_data:
