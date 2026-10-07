@@ -48,4 +48,4 @@ The student workflows are implemented, but this does not establish a full produc
 
 The project is saved at `~/Desktop/brainbot`.
 
-GitHub publication is requested for `JK-cyber31` as a recruiter-shareable public project. A local Git repository is initialized and source-only files are staged in `~/Desktop/brainbot`; generated dependencies, local work/cache files, `.env`, and Android debug keystore are excluded. Creating/pushing the public repository and configuring the profile README remain pending account authentication. Do not claim a production deployment or release.
+GitHub publication is requested for `JK-cyber31` as a recruiter-shareable public project. The source-only project is committed on local `main` at `~/Desktop/brainbot`; generated dependencies, local work/cache files, `.env`, and Android debug keystore are excluded. The local tree is clean. Creating/pushing the public repository and configuring the profile README remain pending account authentication. Do not claim a production deployment or release.
