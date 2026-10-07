@@ -1,0 +1,20 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/brainbot}
+    username: ${SPRING_DATASOURCE_USERNAME:brainbot}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  jackson:
+    default-property-inclusion: non_null
+management.endpoints.web.exposure.include: health,info
+brainbot:
+  jwt:
+    secret: ${BRAINBOT_JWT_SECRET:}
+    expiration-seconds: ${BRAINBOT_JWT_EXPIRATION_SECONDS:3600}
+  ml-url: ${BRAINBOT_ML_URL:http://localhost:8000}
+  data-key-base64: ${BRAINBOT_DATA_KEY_BASE64:}

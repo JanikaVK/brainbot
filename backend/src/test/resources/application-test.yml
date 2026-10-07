@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:brainbot;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+brainbot:
+  jwt:
+    secret: test-signing-secret-which-is-longer-than-32-bytes
+    expiration-seconds: 3600
+  data-key-base64: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+  ml-url: http://127.0.0.1:9

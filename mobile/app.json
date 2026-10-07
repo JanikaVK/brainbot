@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "BRAINBOT",
+    "slug": "brainbot-wellness",
+    "scheme": "brainbot",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "plugins": ["expo-router", "expo-secure-store", ["expo-splash-screen", {"image":"./assets/splash.png", "imageWidth":110, "resizeMode":"contain", "backgroundColor":"#F7F8F4"}], "./plugins/withReleaseSigning"],
+    "android": {"package":"org.brainbot.wellness", "versionCode":1, "adaptiveIcon":{"foregroundImage":"./assets/adaptive-icon.png", "backgroundColor":"#F7F8F4"}},
+    "experiments":{"typedRoutes":true}
+  }
+}
