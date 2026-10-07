@@ -19,7 +19,11 @@ public class JwtService {
     }
     public String issue(AppUser user) {
         Instant now=Instant.now();
-        return Jwts.builder().subject(user.getId().toString()).claim("role",user.getRole().name()).issuedAt(java.util.Date.from(now)).expiration(java.util.Date.from(now.plusSeconds(properties.expirationSeconds()))).signWith(key()).compact();
+        return Jwts.builder().subject(user.getId().toString()).claim("role",user.getRole().name()).claim("passwordResetVersion",user.getPasswordResetVersion()).issuedAt(java.util.Date.from(now)).expiration(java.util.Date.from(now.plusSeconds(properties.expirationSeconds()))).signWith(key()).compact();
+    }
+    public String issuePasswordReset(AppUser user) {
+        Instant now=Instant.now();
+        return Jwts.builder().subject(user.getId().toString()).claim("purpose","password_reset").claim("passwordResetVersion",user.getPasswordResetVersion()).issuedAt(java.util.Date.from(now)).expiration(java.util.Date.from(now.plusSeconds(900))).signWith(key()).compact();
     }
     public io.jsonwebtoken.Claims parse(String token) { return Jwts.parser().verifyWith(key()).build().parseSignedClaims(token).getPayload(); }
 }

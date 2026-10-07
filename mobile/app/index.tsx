@@ -17,7 +17,7 @@ export default function Home() {
   const router=useRouter();
   const [session,setSession]=useState<Session|null>(null);
   const [loading,setLoading]=useState(true);
-  const [mode,setMode]=useState<'login'|'register'>('login');
+  const [mode,setMode]=useState<'login'|'register'|'recover'>('login');
   const [consent,setConsent]=useState(false);
   const [name,setName]=useState(''); const [email,setEmail]=useState(''); const [password,setPassword]=useState('');
   const [history,setHistory]=useState<CheckIn[]>([]); const [busy,setBusy]=useState(false);
@@ -37,6 +37,10 @@ export default function Home() {
     return body;
   }
   async function authenticate(){
+    if(mode==='recover'){
+      if(!email.trim()){Alert.alert('Enter your email','Use the address on your BrainBot account.');return;}
+      setBusy(true);try{await request('/api/auth/password-reset/request',{method:'POST',body:JSON.stringify({email})});Alert.alert('Check your email','If an account matches that email, a reset link will be sent.');setMode('login');}catch(e){Alert.alert('Password recovery unavailable',e instanceof Error?e.message:'Please try again.');}finally{setBusy(false);}return;
+    }
     if((mode==='register'&&!name.trim())||!email.trim()||password.length<12){Alert.alert('Check your details',mode==='register'&&!name.trim()?'Enter your name.':'Enter your email and a password of at least 12 characters.');return;}
     if(mode==='register'&&!consent){Alert.alert('Please review the note','Acknowledge how BrainBot uses check-ins before creating your account.');return;}
     setBusy(true);try{const s=await request(`/api/auth/${mode==='login'?'login':'register'}`,{method:'POST',body:JSON.stringify(mode==='login'?{email,password}:{name,email,password,role:'STUDENT',consentAccepted:consent})}) as Session; await SecureStore.setItemAsync('brainbot.session',JSON.stringify(s));setSession(s);}catch(e){Alert.alert('Could not sign in',e instanceof Error?e.message:'Please try again.');}finally{setBusy(false);}
@@ -53,12 +57,13 @@ export default function Home() {
   async function exportAccount(){setBusy(true);try{const data=await request('/api/account/export');await Share.share({title:'BrainBot account data export',message:JSON.stringify(data,null,2)});}catch(e){Alert.alert('Could not export your data',e instanceof Error?e.message:'Please try again.');}finally{setBusy(false);}}
   if(loading)return <View style={styles.center}><ActivityIndicator color={COLORS.green}/></View>;
   if(!session)return <KeyboardAvoidingView style={styles.page} behavior={Platform.OS==='ios'?'padding':undefined}><StatusBar style="dark"/><ScrollView contentContainerStyle={styles.auth} keyboardShouldPersistTaps="handled">
-    <View style={styles.brandMark}><Text style={styles.brandGlyph}>b</Text></View><Text style={styles.eyebrow}>A LITTLE SPACE TO CHECK IN</Text><Text style={styles.title}>Your wellbeing matters.</Text><Text style={styles.body}>A calm place to notice how you’re doing and find small, practical next steps.</Text>
-    {mode==='register'&&<Field label="Name" value={name} onChangeText={setName} autoCapitalize="words"/>}<Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address"/><Field label="Password" value={password} onChangeText={setPassword} secureTextEntry/>
+    <View style={styles.brandMark}><Text style={styles.brandGlyph}>b</Text></View><Text style={styles.eyebrow}>A LITTLE SPACE TO CHECK IN</Text><Text style={styles.title}>{mode==='recover'?'Reset your password':'Your wellbeing matters.'}</Text><Text style={styles.body}>{mode==='recover'?'Enter your account email and we’ll send a one-time reset link.':'A calm place to notice how you’re doing and find small, practical next steps.'}</Text>
+    {mode==='register'&&<Field label="Name" value={name} onChangeText={setName} autoCapitalize="words"/>}<Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address"/>{mode!=='recover'&&<Field label="Password" value={password} onChangeText={setPassword} secureTextEntry/>}
+    {mode==='recover'&&<Text style={styles.caption}>For privacy, BrainBot shows the same confirmation whether or not that email is registered. A reset email is sent only when recovery is configured.</Text>}
     {mode==='register'&&<><Text style={styles.caption}>Use at least 12 characters. Check-ins and support requests are stored with your account. Journal entries are encrypted by the backend. Wellness indicators are not medical predictions or diagnoses. Only submit information you’re comfortable storing.</Text><Pressable accessibilityRole="checkbox" accessibilityState={{checked:consent}} onPress={()=>setConsent(!consent)} style={{flexDirection:'row',alignItems:'center',gap:10,paddingVertical:10}}><View style={{width:22,height:22,borderRadius:6,borderWidth:1,borderColor:COLORS.green,alignItems:'center',justifyContent:'center',backgroundColor:consent?COLORS.green:COLORS.white}}>{consent&&<Text style={{color:COLORS.white,fontWeight:'700'}}>✓</Text>}</View><Text style={{flex:1,fontSize:13,lineHeight:19,color:COLORS.ink}}>I understand and agree that my wellness data and saved support requests are associated with my account.</Text></Pressable></>}
-    <PrimaryButton title={busy?'Please wait…':mode==='login'?'Sign in':'Create account'} disabled={busy} onPress={authenticate}/>
-    {mode==='login'&&<Pressable onPress={()=>Alert.alert('Password recovery unavailable','Email-based password recovery is not configured in this build.')}><Text style={styles.link}>Forgot password?</Text></Pressable>}
-    <Pressable onPress={()=>{setConsent(false);setMode(mode==='login'?'register':'login');}}><Text style={styles.link}>{mode==='login'?"New to BrainBot? Create an account":"Already have an account? Sign in"}</Text></Pressable>
+    <PrimaryButton title={busy?'Please wait…':mode==='login'?'Sign in':mode==='register'?'Create account':'Send reset link'} disabled={busy} onPress={authenticate}/>
+    {mode==='login'&&<Pressable onPress={()=>setMode('recover')}><Text style={styles.link}>Forgot password?</Text></Pressable>}
+    <Pressable onPress={()=>{setConsent(false);setMode(mode==='login'?'register':'login');}}><Text style={styles.link}>{mode==='login'?"New to BrainBot? Create an account":mode==='register'?"Already have an account? Sign in":"Back to sign in"}</Text></Pressable>
     <Text style={styles.disclaimer}>BrainBot supports everyday wellbeing. It does not diagnose or replace professional care.</Text>
   </ScrollView></KeyboardAvoidingView>;
   if(session.role!=='STUDENT')return <View style={styles.page}><Text style={styles.title}>Welcome, {session.name.split(' ')[0]}.</Text><Text style={styles.body}>This role’s workspace is not available yet.</Text><PrimaryButton title="Sign out" onPress={logout}/></View>;

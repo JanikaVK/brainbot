@@ -12,6 +12,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.mockito.ArgumentCaptor;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("test")
 class StudentWorkflowTest {
@@ -19,6 +24,7 @@ class StudentWorkflowTest {
     @Autowired org.brainbot.api.repo.UserRepository users;
     @Autowired org.brainbot.api.security.JwtService jwt;
     @Autowired PasswordEncoder passwords;
+    @MockitoBean JavaMailSender mailSender;
 
     @Test void registerCheckInJournalSupportAndDeleteAccount() throws Exception {
         String session=mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
@@ -64,5 +70,39 @@ class StudentWorkflowTest {
     @Test void facultyRoleCannotReadStudentCheckIns() throws Exception {
         var faculty=users.save(new org.brainbot.api.domain.AppUser("Faculty","faculty@example.test",passwords.encode("another-test-password-123"),org.brainbot.api.domain.Role.FACULTY,"wellness-v2"));
         mvc.perform(get("/api/check-ins").header("Authorization","Bearer "+jwt.issue(faculty))).andExpect(status().isForbidden());
+    }
+
+    @Test void passwordResetIsOneTimeAndRevokesExistingSessions() throws Exception {
+        String response=mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+            {"name":"Reset Student","email":"reset@example.test","password":"original-password-123","role":"STUDENT","consentAccepted":true}
+            """))
+            .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String oldToken=new com.fasterxml.jackson.databind.ObjectMapper().readTree(response).get("token").asText();
+        doNothing().when(mailSender).send(any(SimpleMailMessage.class));
+        mvc.perform(post("/api/auth/password-reset/request").contentType(MediaType.APPLICATION_JSON).content("""
+            {"email":"reset@example.test"}
+            """))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.message").value("If an account matches that email, a reset link will be sent."));
+        mvc.perform(post("/api/auth/password-reset/request").contentType(MediaType.APPLICATION_JSON).content("""
+            {"email":"nobody@example.test"}
+            """))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.message").value("If an account matches that email, a reset link will be sent."));
+        ArgumentCaptor<SimpleMailMessage> email=ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender).send(email.capture());
+        String text=email.getValue().getText();
+        String resetToken=text.substring(text.indexOf("?token=")+7).split("\\s")[0];
+        mvc.perform(post("/api/auth/password-reset/confirm").contentType(MediaType.APPLICATION_JSON).content(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(java.util.Map.of("token",resetToken,"newPassword","replacement-password-456"))))
+            .andExpect(status().isOk());
+        mvc.perform(post("/api/auth/password-reset/confirm").contentType(MediaType.APPLICATION_JSON).content(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(java.util.Map.of("token",resetToken,"newPassword","another-replacement-456"))))
+            .andExpect(status().isBadRequest());
+        mvc.perform(get("/api/check-ins").header("Authorization","Bearer "+oldToken)).andExpect(status().isUnauthorized());
+        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content("""
+            {"email":"reset@example.test","password":"original-password-123"}
+            """))
+            .andExpect(status().isUnauthorized());
+        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content("""
+            {"email":"reset@example.test","password":"replacement-password-456"}
+            """))
+            .andExpect(status().isOk());
     }
 }

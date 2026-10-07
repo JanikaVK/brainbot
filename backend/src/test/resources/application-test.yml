@@ -7,7 +7,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+  mail:
+    host: smtp.example.test
 brainbot:
+  password-reset:
+    base-url: brainbot://reset-password
+    from: no-reply@example.test
   jwt:
     secret: test-signing-secret-which-is-longer-than-32-bytes
     expiration-seconds: 3600

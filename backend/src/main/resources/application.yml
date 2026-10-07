@@ -11,10 +11,31 @@ spring:
     open-in-view: false
   jackson:
     default-property-inclusion: non_null
-management.endpoints.web.exposure.include: health,info
+  mail:
+    host: ${SMTP_HOST:}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${SMTP_AUTH:true}
+      mail.smtp.starttls.enable: ${SMTP_STARTTLS_ENABLE:true}
+      mail.smtp.connectiontimeout: ${SMTP_TIMEOUT_MS:5000}
+      mail.smtp.timeout: ${SMTP_TIMEOUT_MS:5000}
+      mail.smtp.writetimeout: ${SMTP_TIMEOUT_MS:5000}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  health:
+    mail:
+      enabled: false
 brainbot:
   jwt:
     secret: ${BRAINBOT_JWT_SECRET:}
     expiration-seconds: ${BRAINBOT_JWT_EXPIRATION_SECONDS:3600}
   ml-url: ${BRAINBOT_ML_URL:http://localhost:8000}
   data-key-base64: ${BRAINBOT_DATA_KEY_BASE64:}
+  password-reset:
+    base-url: ${BRAINBOT_PASSWORD_RESET_BASE_URL:}
+    from: ${BRAINBOT_MAIL_FROM:BrainBot <no-reply@localhost>}

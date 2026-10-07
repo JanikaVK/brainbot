@@ -13,6 +13,7 @@ BrainBot is supportive software, not a clinical diagnostic system. Its model end
 ## What it does
 
 - Student registration and sign-in with expiring JWT sessions and secure mobile token storage.
+- One-time emailed password reset links; sessions issued before a reset are revoked when SMTP is configured.
 - Daily check-ins, recent history, and simple descriptive trends.
 - Journal entries encrypted by the backend before database storage.
 - Saved support requests, with their pending-routing status made explicit.
@@ -45,7 +46,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/ML_PIPELINE.md](docs/ML_
 1. Copy `.env.example` to `.env`; generate a journal encryption key with `openssl rand -base64 32`, paste it as `DATA_ENCRYPTION_KEY_B64`, and replace every sample credential before starting. Losing this key makes encrypted journal contents unrecoverable.
 2. Run `docker compose up --build` for MySQL, API, and ML API. The API uses MySQL health checks; no model is bundled.
 3. Start mobile: `cd mobile && npm install && npx expo start` (press `a` with an Android emulator running).
-4. For a physical device, set `EXPO_PUBLIC_API_URL` to the host machine's reachable HTTPS endpoint. Android emulator uses `http://10.0.2.2:8080` in local development.
+4. Configure `SMTP_HOST`, SMTP credentials, `BRAINBOT_MAIL_FROM`, and `BRAINBOT_PASSWORD_RESET_BASE_URL` to enable emailed password recovery; leave SMTP unset to keep recovery explicitly unavailable. For a physical device, set `EXPO_PUBLIC_API_URL` to the host machine's reachable HTTPS endpoint. Android emulator uses `http://10.0.2.2:8080` in local development.
 
 Backend local run (Spring Boot 3.5, Java 21): `set -a; source .env; set +a; cd backend && mvn spring-boot:run`. ML local run: `cd ml && python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt && uvicorn app.main:app --reload --port 8000`.
 
