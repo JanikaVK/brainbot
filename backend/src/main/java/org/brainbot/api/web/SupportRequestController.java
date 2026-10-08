@@ -33,7 +33,7 @@ public class SupportRequestController {
     private AppUser current(Authentication auth){try{return users.findById(Long.parseLong(auth.getName())).orElseThrow();}catch(Exception ex){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session is no longer valid");}}
     private Item item(SupportRequest r){
         String message=null;
-        if(r.getMessageCiphertext()!=null) try { message=encryption.decrypt(r.getUserId(),r.getMessageIv(),r.getMessageCiphertext()); }
+        if(r.getMessageCiphertext()!=null) try { message=encryption.decrypt(r.getUser().getId(),r.getMessageIv(),r.getMessageCiphertext()); }
         catch(Exception ex) { throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,"Encrypted support request could not be opened"); }
         return new Item(r.getId(),r.getKind(),r.getStatus(),message,r.getCreatedAt());
     }

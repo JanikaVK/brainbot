@@ -16,5 +16,5 @@ public class SupportRequest {
     @Column(name="created_at", nullable=false, updatable=false) private Instant createdAt=Instant.now();
     protected SupportRequest() { }
     public SupportRequest(AppUser user, Kind kind, byte[] messageIv, byte[] messageCiphertext) { this.user=user; this.kind=kind; this.messageIv=messageIv; this.messageCiphertext=messageCiphertext; }
-    public Long getId(){return id;} public Kind getKind(){return kind;} public Status getStatus(){return status;} public byte[] getMessageIv(){return messageIv;} public byte[] getMessageCiphertext(){return messageCiphertext;} public Long getUserId(){return user.getId();} public Instant getCreatedAt(){return createdAt;}
+    public Long getId(){return id;} public Kind getKind(){return kind;} public Status getStatus(){return status;} public byte[] getMessageIv(){return messageIv;} public byte[] getMessageCiphertext(){return messageCiphertext;} public AppUser getUser(){return user;} public Instant getCreatedAt(){return createdAt;}
 }
