@@ -48,4 +48,4 @@ The student workflows are implemented, but this does not establish a full produc
 
 The project is saved at `~/Desktop/brainbot`.
 
-GitHub publication is requested for `JK-cyber31` as a recruiter-shareable public project. The source-only project is committed on local `main` at `~/Desktop/brainbot`; generated dependencies, local work/cache files, `.env`, and Android debug keystore are excluded. The local tree is clean. Creating/pushing the public repository and configuring the profile README remain pending account authentication. Do not claim a production deployment or release.
+The public repository is available at [github.com/JanikaVK/brainbot](https://github.com/JanikaVK/brainbot), with the source-only project on `main`. Generated dependencies, local work/cache files, `.env`, and Android debug keystore are excluded. The profile README template is in `docs/PROFILE_README.md` and still needs to be installed into the account's special profile repository. Do not claim a production deployment or release.

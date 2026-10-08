@@ -1,8 +1,8 @@
-# JK-cyber31
+# JanikaVK
 
 ## Featured project
 
-### [BrainBot](https://github.com/JK-cyber31/brainbot)
+### [BrainBot](https://github.com/JanikaVK/brainbot)
 
 A student wellbeing Android application with private check-ins, descriptive trends, an encrypted journal, support requests, and an optional machine-learning inference service.
 
@@ -12,4 +12,4 @@ A student wellbeing Android application with private check-ins, descriptive tren
 
 ---
 
-More project details and setup instructions: [github.com/JK-cyber31/brainbot](https://github.com/JK-cyber31/brainbot)
+More project details and setup instructions: [github.com/JanikaVK/brainbot](https://github.com/JanikaVK/brainbot)

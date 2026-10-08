@@ -6,7 +6,7 @@ BrainBot is supportive software, not a clinical diagnostic system. Its model end
 
 > **Project status:** working student workflows and CI checks are implemented. This is a development project, not a deployed or Play Store released service. See [current limitations](docs/CODEX_PROGRESS.md#remaining-constraints) before evaluating it.
 
-[![CI](https://github.com/JK-cyber31/brainbot/actions/workflows/ci.yml/badge.svg)](https://github.com/JK-cyber31/brainbot/actions/workflows/ci.yml)
+[![CI](https://github.com/JanikaVK/brainbot/actions/workflows/ci.yml/badge.svg)](https://github.com/JanikaVK/brainbot/actions/workflows/ci.yml)
 
 ![BrainBot app icon](mobile/assets/icon.png)
 
