@@ -11,9 +11,10 @@ public class SupportRequest {
     @ManyToOne(optional=false, fetch=FetchType.LAZY) @JoinColumn(name="user_id", nullable=false) private AppUser user;
     @Enumerated(EnumType.STRING) @Column(nullable=false, length=32) private Kind kind;
     @Enumerated(EnumType.STRING) @Column(nullable=false, length=24) private Status status=Status.PENDING_ROUTING;
-    @Column(length=1000) private String message;
+    @Lob @Column(name="message_iv") private byte[] messageIv;
+    @Lob @Column(name="message_ciphertext") private byte[] messageCiphertext;
     @Column(name="created_at", nullable=false, updatable=false) private Instant createdAt=Instant.now();
     protected SupportRequest() { }
-    public SupportRequest(AppUser user, Kind kind, String message) { this.user=user; this.kind=kind; this.message=message; }
-    public Long getId(){return id;} public Kind getKind(){return kind;} public Status getStatus(){return status;} public String getMessage(){return message;} public Instant getCreatedAt(){return createdAt;}
+    public SupportRequest(AppUser user, Kind kind, byte[] messageIv, byte[] messageCiphertext) { this.user=user; this.kind=kind; this.messageIv=messageIv; this.messageCiphertext=messageCiphertext; }
+    public Long getId(){return id;} public Kind getKind(){return kind;} public Status getStatus(){return status;} public byte[] getMessageIv(){return messageIv;} public byte[] getMessageCiphertext(){return messageCiphertext;} public Long getUserId(){return user.getId();} public Instant getCreatedAt(){return createdAt;}
 }

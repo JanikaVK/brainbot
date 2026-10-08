@@ -1,6 +1,6 @@
 # BRAINBOT
 
-**A student wellbeing Android app with an encrypted journal, private check-ins, support requests, and an optional ML inference service.** Built with Expo / React Native, Spring Boot, FastAPI, and MySQL.
+**A student wellbeing Android app with private check-ins, an encrypted journal and support messages, and an optional ML inference service.** Built with Expo / React Native, Spring Boot, FastAPI, and MySQL.
 
 BrainBot is supportive software, not a clinical diagnostic system. Its model endpoint intentionally reports unavailable until a verified, permissioned dataset is supplied and a model is trained and reviewed. No student data, trained model, metrics, or credentials are included in this repository.
 
@@ -43,7 +43,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/ML_PIPELINE.md](docs/ML_
 
 ## Start services
 
-1. Copy `.env.example` to `.env`; generate a journal encryption key with `openssl rand -base64 32`, paste it as `DATA_ENCRYPTION_KEY_B64`, and replace every sample credential before starting. Losing this key makes encrypted journal contents unrecoverable.
+1. Copy `.env.example` to `.env`; generate an encryption key with `openssl rand -base64 32`, paste it as `DATA_ENCRYPTION_KEY_B64`, and replace every sample credential before starting. Losing this key makes encrypted journal and support message contents unrecoverable.
 2. Run `docker compose up --build` for MySQL, API, and ML API. The API uses MySQL health checks; no model is bundled.
 3. Start mobile: `cd mobile && npm install && npx expo start` (press `a` with an Android emulator running).
 4. Configure `SMTP_HOST`, SMTP credentials, `BRAINBOT_MAIL_FROM`, and `BRAINBOT_PASSWORD_RESET_BASE_URL` to enable emailed password recovery; leave SMTP unset to keep recovery explicitly unavailable. For a physical device, set `EXPO_PUBLIC_API_URL` to the host machine's reachable HTTPS endpoint. Android emulator uses `http://10.0.2.2:8080` in local development.

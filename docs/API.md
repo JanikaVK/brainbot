@@ -16,7 +16,7 @@ Base URL: `http://localhost:8080` in development; HTTPS is required in deploymen
 - `GET /api/check-ins/trends` — descriptive 7-day averages for the authenticated student; no risk label is inferred.
 - `GET /api/account/export` — authenticated student data export in JSON (`brainbot-account-export-v1`); includes up to 90 recent check-ins and 50 recent items per other history type, and excludes credentials.
 - `DELETE /api/account` — deletes the authenticated account and associated check-ins, assessments, journal entries, and support requests.
-- `POST /api/support-requests` and `GET /api/support-requests` — create and view a student's own saved support requests. Requests remain `PENDING_ROUTING`; no staff directory, assignment, or notification integration exists yet.
+- `POST /api/support-requests` and `GET /api/support-requests` — create and view a student's own saved support requests. Message bodies are encrypted at rest. Requests remain `PENDING_ROUTING`; no staff directory, assignment, or notification integration exists yet.
 - `POST /api/journal`, `GET /api/journal`, `PUT /api/journal/{entryId}`, `DELETE /api/journal/{entryId}` — encrypted, owner-scoped student journal entries.
 - ML service `GET /health`, `GET /model/version`, `POST /predict`, `POST /explain`.
 

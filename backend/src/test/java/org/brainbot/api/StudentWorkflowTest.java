@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
 class StudentWorkflowTest {
     @Autowired MockMvc mvc;
     @Autowired org.brainbot.api.repo.UserRepository users;
+    @Autowired org.brainbot.api.repo.SupportRequestRepository supportRequests;
     @Autowired org.brainbot.api.security.JwtService jwt;
     @Autowired PasswordEncoder passwords;
     @MockitoBean JavaMailSender mailSender;
@@ -48,16 +49,26 @@ class StudentWorkflowTest {
             {"title":"Small win","content":"I took a restorative break."}
             """))
             .andExpect(status().isOk()).andExpect(jsonPath("$.content").value("I took a restorative break."));
+        String supportMessage="I would like a conversation.";
         mvc.perform(post("/api/support-requests").header("Authorization","Bearer "+token).contentType(MediaType.APPLICATION_JSON).content("""
             {"kind":"FACULTY_SUPPORT","message":"I would like a conversation."}
             """))
-            .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("PENDING_ROUTING"));
+            .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("PENDING_ROUTING"))
+            .andExpect(jsonPath("$.message").value(supportMessage));
+        long studentId=users.findByEmail("student@example.test").orElseThrow().getId();
+        var storedRequest=supportRequests.findTop50ByUserIdOrderByCreatedAtDesc(studentId).get(0);
+        org.junit.jupiter.api.Assertions.assertNotNull(storedRequest.getMessageIv());
+        org.junit.jupiter.api.Assertions.assertNotNull(storedRequest.getMessageCiphertext());
+        org.junit.jupiter.api.Assertions.assertFalse(new String(storedRequest.getMessageCiphertext(),java.nio.charset.StandardCharsets.UTF_8).contains(supportMessage));
+        mvc.perform(get("/api/support-requests").header("Authorization","Bearer "+token))
+            .andExpect(status().isOk()).andExpect(jsonPath("$[0].message").value(supportMessage));
         mvc.perform(get("/api/account/export").header("Authorization","Bearer "+token))
             .andExpect(status().isOk()).andExpect(jsonPath("$.format").value("brainbot-account-export-v1"))
             .andExpect(jsonPath("$.account.email").value("student@example.test"))
             .andExpect(jsonPath("$.checkIns.length()").value(1))
             .andExpect(jsonPath("$.journalEntries[0].content").value("I took a restorative break."))
             .andExpect(jsonPath("$.supportRequests[0].status").value("PENDING_ROUTING"))
+            .andExpect(jsonPath("$.supportRequests[0].message").value(supportMessage))
             .andExpect(jsonPath("$.account.passwordHash").doesNotExist());
         mvc.perform(delete("/api/account").header("Authorization","Bearer "+token)).andExpect(status().isOk());
         mvc.perform(get("/api/check-ins").header("Authorization","Bearer "+token)).andExpect(status().isUnauthorized());

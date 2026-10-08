@@ -59,7 +59,12 @@ public class AccountController {
                 } catch(Exception ex) { throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,"Encrypted journal data could not be included in the export"); }
             }).toList();
             List<SupportData> supportItems=requests.findTop50ByUserIdOrderByCreatedAtDesc(userId).stream()
-                    .map(r->new SupportData(r.getId(),r.getKind(),r.getStatus(),r.getMessage(),r.getCreatedAt())).toList();
+                    .map(r->{
+                        try {
+                            String message=r.getMessageCiphertext()==null?null:encryption.decrypt(userId,r.getMessageIv(),r.getMessageCiphertext());
+                            return new SupportData(r.getId(),r.getKind(),r.getStatus(),message,r.getCreatedAt());
+                        } catch(Exception ex) { throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,"Encrypted support request data could not be included in the export"); }
+                    }).toList();
             return new DataExport("brainbot-account-export-v1",Instant.now(),new AccountData(user.getName(),user.getEmail(),user.getRole()),checkInItems,assessmentItems,journalItems,supportItems);
         } catch(ResponseStatusException ex) { throw ex; }
         catch(Exception ex) { throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,"Your account export could not be created"); }
