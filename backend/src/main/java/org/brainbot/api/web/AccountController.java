@@ -58,7 +58,7 @@ public class AccountController {
                     return new JournalController.Item(entry.getId(),content.title(),content.content(),entry.getCreatedAt(),entry.getUpdatedAt());
                 } catch(Exception ex) { throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,"Encrypted journal data could not be included in the export"); }
             }).toList();
-            List<SupportData> supportItems=requests.findTop50ByUserIdOrderByCreatedAtDesc(userId).stream()
+            List<SupportData> supportItems=requests.findTop50ByUser_IdOrderByCreatedAtDesc(userId).stream()
                     .map(r->{
                         try {
                             String message=r.getMessageCiphertext()==null?null:encryption.decrypt(userId,r.getMessageIv(),r.getMessageCiphertext());
@@ -75,7 +75,7 @@ public class AccountController {
         long userId=userId(authentication);
         if(!users.existsById(userId)) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account not found");
         checkIns.deleteByUserId(userId);
-        requests.deleteByUserId(userId);
+        requests.deleteByUser_Id(userId);
         assessments.deleteByUserId(userId);
         journals.deleteByUserId(userId);
         users.deleteById(userId);

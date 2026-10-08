@@ -29,7 +29,7 @@ public class SupportRequestController {
         SupportRequest saved=requests.save(new SupportRequest(user,input.kind(),encrypted==null?null:encrypted.iv(),encrypted==null?null:encrypted.ciphertext()));
         return item(saved);
     }
-    @GetMapping public List<Item> mine(Authentication auth){return requests.findTop50ByUserIdOrderByCreatedAtDesc(current(auth).getId()).stream().map(this::item).toList();}
+    @GetMapping public List<Item> mine(Authentication auth){return requests.findTop50ByUser_IdOrderByCreatedAtDesc(current(auth).getId()).stream().map(this::item).toList();}
     private AppUser current(Authentication auth){try{return users.findById(Long.parseLong(auth.getName())).orElseThrow();}catch(Exception ex){throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session is no longer valid");}}
     private Item item(SupportRequest r){
         String message=null;

@@ -56,7 +56,7 @@ class StudentWorkflowTest {
             .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("PENDING_ROUTING"))
             .andExpect(jsonPath("$.message").value(supportMessage));
         long studentId=users.findByEmail("student@example.test").orElseThrow().getId();
-        var storedRequest=supportRequests.findTop50ByUserIdOrderByCreatedAtDesc(studentId).get(0);
+        var storedRequest=supportRequests.findTop50ByUser_IdOrderByCreatedAtDesc(studentId).get(0);
         org.junit.jupiter.api.Assertions.assertNotNull(storedRequest.getMessageIv());
         org.junit.jupiter.api.Assertions.assertNotNull(storedRequest.getMessageCiphertext());
         org.junit.jupiter.api.Assertions.assertFalse(new String(storedRequest.getMessageCiphertext(),java.nio.charset.StandardCharsets.UTF_8).contains(supportMessage));
